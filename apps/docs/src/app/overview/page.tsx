@@ -83,6 +83,7 @@ function StaticHeroDemo() {
           <Skeleton
             name="overview-dashboard"
             loading={true}
+            color="rgba(0,0,0,0.08)"
             fixture={<DashboardMock />}
           >
             <DashboardMock />

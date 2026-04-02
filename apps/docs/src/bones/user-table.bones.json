@@ -2,8 +2,8 @@
   "breakpoints": {
     "375": {
       "name": "user-table",
-      "viewportWidth": 354,
-      "width": 354,
+      "viewportWidth": 38,
+      "width": 38,
       "height": 168,
       "bones": [
         {
@@ -52,8 +52,8 @@
     },
     "640": {
       "name": "user-table",
-      "viewportWidth": 354,
-      "width": 354,
+      "viewportWidth": 197,
+      "width": 197,
       "height": 168,
       "bones": [
         {
@@ -102,8 +102,8 @@
     },
     "768": {
       "name": "user-table",
-      "viewportWidth": 354,
-      "width": 354,
+      "viewportWidth": 274,
+      "width": 274,
       "height": 168,
       "bones": [
         {

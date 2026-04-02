@@ -19,7 +19,6 @@ const navItems = [
 
 const exampleItems = [
   { href: "/demo", label: "Complex Example" },
-  { href: "/playground", label: "Playground" },
   { href: "/try-it", label: "Examples" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/agent", label: "Agent" },

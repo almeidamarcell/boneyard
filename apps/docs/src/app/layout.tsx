@@ -3,7 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { Sidebar } from "@/components/sidebar";
 
 import "./globals.css";
-import "../bones/registry";
+import BoneRegistryInit from "../bones/registry-client";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-[#fafaf9] text-[#1c1917] font-[family-name:var(--font-sans)] antialiased">
+        <BoneRegistryInit />
         {/* Centered container for sidebar + content */}
         <div className="mx-auto max-w-[1080px] flex h-screen px-3 py-3">
           <Sidebar />

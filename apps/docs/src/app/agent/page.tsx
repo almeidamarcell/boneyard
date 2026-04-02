@@ -4,15 +4,16 @@ import { useState } from "react";
 import { CopyIcon } from "@/components/ui/icons/copy";
 import { CheckIcon } from "@/components/ui/icons/check";
 
-const AGENT_PROMPT = `# boneyard
+const AGENT_PROMPT = `# boneyard-js
 
 Pixel-perfect skeleton loading screens, extracted directly from your real DOM. No manual measurement, no hand-tuned placeholders.
 
 ## How it works
 
 1. Wrap your component with \`<Skeleton>\` and give it a \`name\`
-2. Run \`npx boneyard-js build\` — it visits your app, snapshots the DOM, and writes \`.bones.json\` files + a \`registry.js\`
-3. Add \`import './bones/registry'\` once in your app entry — every Skeleton auto-resolves its bones by name
+2. Optionally add a \`fixture\` prop with mock data for the build step
+3. Run \`npx boneyard-js build\` — it crawls your app, snapshots every named Skeleton, and writes \`.bones.json\` files + a \`registry.js\`
+4. Add \`import './bones/registry'\` once in your app entry — every Skeleton auto-resolves its bones by name
 
 ## Install
 
@@ -23,23 +24,45 @@ npm install boneyard-js
 ## Quick start
 
 \`\`\`tsx
-// app/layout.tsx — import the registry once
+// app/layout.tsx — import the registry once (must be client-side for Next.js)
 import './bones/registry'
 \`\`\`
 
 \`\`\`tsx
-// app/blog/page.tsx — no per-file JSON import needed
 import { Skeleton } from 'boneyard-js/react'
 
 function BlogPage() {
   const { data, isLoading } = useFetch('/api/post')
   return (
-    <Skeleton name="blog-card" loading={isLoading}>
+    <Skeleton
+      name="blog-card"
+      loading={isLoading}
+      fixture={<BlogCard data={MOCK_DATA} />}
+    >
       {data && <BlogCard data={data} />}
     </Skeleton>
   )
 }
 \`\`\`
+
+## The fixture prop
+
+Apps often have authentication or user-specific data that isn't available during the build step. The \`fixture\` prop provides mock content that only renders when the CLI is capturing — never in production.
+
+\`\`\`tsx
+<Skeleton
+  name="dashboard"
+  loading={isLoading}
+  fixture={<Dashboard data={{
+    title: "Sample Title",
+    stats: [{ label: "Revenue", value: "$12.3k" }]
+  }} />}
+>
+  {data && <Dashboard data={data} />}
+</Skeleton>
+\`\`\`
+
+The mock data doesn't need to be real — it just needs to produce the same layout shape (same number of cards, similar text lengths, etc.).
 
 ## Generate the bones
 
@@ -49,32 +72,32 @@ With your dev server running:
 npx boneyard-js build
 \`\`\`
 
-This opens a headless browser, visits your app at 375px, 768px, and 1280px, finds every \`<Skeleton name="...">\`, measures the layout, and saves \`.bones.json\` files + a \`registry.js\` to \`src/bones/\`.
+The CLI:
+- Auto-detects your dev server by scanning common ports (3000, 5173, 4321, 8080…)
+- Auto-detects Tailwind breakpoints from your config (falls back to 375, 768, 1280)
+- Crawls all internal links starting from the root URL
+- Finds every \`<Skeleton name="...">\` on each page
+- Captures bones at every breakpoint
+- Writes \`.bones.json\` files + a \`registry.js\` to your output directory
+- Auto-installs Chromium on first run
 
-The registry calls \`registerBones()\` for each skeleton name so that \`<Skeleton name="x">\` auto-resolves without needing \`initialBones\`.
+Or pass a URL explicitly: \`npx boneyard-js build http://localhost:5173\`
 
-Auto-detects your dev server by scanning common ports (3000, 5173, 4321, 8080…). Or pass a URL: \`npx boneyard-js build http://localhost:5173\`.
+Re-run whenever your layout changes to regenerate.
 
-Re-run it whenever your layout changes to regenerate.
+**Next.js App Router:** The generated \`registry.js\` includes \`"use client"\` automatically. \`<Skeleton>\` uses hooks — add \`"use client"\` to any file that imports it.
 
-**Next.js App Router:** \`<Skeleton>\` uses hooks — add \`"use client"\` to any file that imports it.
+## Excluding elements
 
-### Skeleton props
+Add \`data-no-skeleton\` to any element you want to skip:
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| loading | boolean | required | Show skeleton when true, real content when false |
-| name | string | required | Unique name — the CLI uses this to generate the \`.bones.json\` file |
-| initialBones | ResponsiveBones | — | Optional manual override. If you use the registry, you don't need this |
-| color | string | '#e0e0e0' | Bone fill color (pulse auto-shimmers to a lighter shade) |
-| animate | boolean | true | Pulse animation (set false for static) |
-| className | string | — | Extra CSS class on the wrapper div |
-| fallback | ReactNode | — | What to show if bones haven't been generated yet |
-| snapshotConfig | SnapshotConfig | — | Control which elements are included/excluded |
+\`\`\`tsx
+<nav data-no-skeleton>
+  {/* This stays visible during loading */}
+</nav>
+\`\`\`
 
-### snapshotConfig
-
-Use \`snapshotConfig\` to hide elements from the skeleton:
+Or use \`snapshotConfig\` for more control:
 
 \`\`\`tsx
 <Skeleton
@@ -85,11 +108,38 @@ Use \`snapshotConfig\` to hide elements from the skeleton:
 >
 \`\`\`
 
+## Dark mode
+
+The component auto-detects dark mode via the \`.dark\` class on \`<html>\` or any parent element (standard Tailwind convention). It uses \`darkColor\` when dark mode is active.
+
+You can also pass colors explicitly:
+
+\`\`\`tsx
+<Skeleton color="rgba(0,0,0,0.08)" darkColor="rgba(255,255,255,0.06)" />
+\`\`\`
+
+### Skeleton props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| loading | boolean | required | Show skeleton when true, real content when false |
+| name | string | required | Unique name — the CLI uses this to generate the \`.bones.json\` file |
+| fixture | ReactNode | — | Mock content rendered only during \`npx boneyard-js build\`. Never touches production |
+| initialBones | ResponsiveBones | — | Optional manual override. If you use the registry, you don't need this |
+| color | string | rgba(0,0,0,0.08) | Bone fill color for light mode |
+| darkColor | string | rgba(255,255,255,0.06) | Bone fill color for dark mode (\`.dark\` class) |
+| animate | boolean | true | Pulse animation (set false for static) |
+| className | string | — | Extra CSS class on the wrapper div |
+| fallback | ReactNode | — | What to show if bones haven't been generated yet |
+| snapshotConfig | SnapshotConfig | — | Control which elements are included/excluded during capture |
+
+### snapshotConfig
+
 | Option | Default | Description |
 |--------|---------|-------------|
 | excludeSelectors | [] | CSS selectors to skip (with all children) |
 | excludeTags | [] | HTML tags to skip entirely |
-| leafTags | p, h1–h6, li, tr | Tags treated as one solid block |
+| leafTags | p, h1–h6, li, tr | Tags treated as one solid block (merged with defaults) |
 | captureRoundedBorders | true | Capture containers with border + border-radius as bones |
 
 ### npx boneyard-js build options
@@ -97,11 +147,9 @@ Use \`snapshotConfig\` to hide elements from the skeleton:
 \`\`\`
 npx boneyard-js build [url] [options]
   --out <dir>          Output directory (default: ./src/bones)
-  --breakpoints <bp>   Viewport widths, comma-separated (default: 375,768,1280)
+  --breakpoints <bp>   Viewport widths, comma-separated (auto-detects Tailwind)
   --wait <ms>          Extra wait after page load (default: 800)
 \`\`\`
-
-Playwright is included as a dependency. On first run: \`npx playwright install chromium\`.
 
 ## Bone format
 
@@ -118,9 +166,16 @@ const html = renderBones(result, '#d4d4d4')
 container.innerHTML = html
 
 // Manual bone registration (what the generated registry.js does automatically)
-import { registerBones } from 'boneyard-js'
-registerBones('my-card', bonesJson)
+import { registerBones } from 'boneyard-js/react'
+registerBones({ 'my-card': bonesJson })
 \`\`\`
+
+## Authentication & Playwright access
+
+If your app requires authentication:
+- Use the \`fixture\` prop to provide mock data that renders without auth
+- Or set up a dev/preview mode that bypasses auth for the build step
+- The CLI runs Playwright in headless mode — it won't have access to your browser sessions or cookies
 
 ## Known limitations
 
@@ -128,11 +183,12 @@ registerBones('my-card', bonesJson)
 - **Dynamic content**: Bones reflect the layout at capture time. Re-run the build if layout changes
 - **CSS transforms**: Bones use bounding rects, so transforms affect position but not bone sizing
 - **React portals**: Elements outside the snapshot root aren't captured
+- **Viewport vs container**: Breakpoints are based on viewport width, not container width
 
 ## Package exports
 
-- \`boneyard\` — snapshotBones, renderBones, registerBones, computeLayout, fromElement
-- \`boneyard/react\` — Skeleton component
+- \`boneyard-js\` — snapshotBones, renderBones, fromElement
+- \`boneyard-js/react\` — Skeleton, registerBones
 `;
 
 export default function AgentPage() {

@@ -166,6 +166,10 @@ function SkeletonSection({
 
 export default function DemoPage() {
   const { setRef, bones, loading, setLoading, generate, isGenerating, totalBones } = useSkeletonCapture();
+  const [showSkeleton, setShowSkeleton] = useState(false);
+
+  // Use registry bones by default, live-captured bones after clicking generate
+  const effectiveLoading = showSkeleton || loading;
 
   return (
     <div className="fixed inset-0 z-50 bg-[#fafaf9] overflow-y-auto">
@@ -184,41 +188,20 @@ export default function DemoPage() {
             One click. Zero layout thrashing. Pixel-perfect loading states extracted directly from your real UI.
           </p>
           <div className="flex items-center justify-center gap-3">
-            {!loading ? (
-              <button
-                onClick={generate}
-                disabled={isGenerating}
-                className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold transition-all ${
-                  isGenerating
-                    ? "bg-stone-300 text-stone-500 cursor-wait"
-                    : "bg-stone-900 text-white hover:bg-stone-800 shadow-lg shadow-stone-300 hover:shadow-xl hover:shadow-stone-300 hover:-translate-y-0.5"
-                }`}
-              >
-                {isGenerating ? (
-                  <>
-                    <span className="inline-block w-4 h-4 border-2 border-stone-400 border-t-white rounded-full animate-spin" />
-                    Extracting...
-                  </>
-                ) : (
-                  <>Generate Skeleton &#x2192;</>
-                )}
+            <button
+              onClick={() => setShowSkeleton(!showSkeleton)}
+              className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold transition-all ${
+                showSkeleton
+                  ? "bg-stone-200 text-stone-700 hover:bg-stone-300"
+                  : "bg-stone-900 text-white hover:bg-stone-800 shadow-lg shadow-stone-300 hover:shadow-xl hover:shadow-stone-300 hover:-translate-y-0.5"
+              }`}
+            >
+              {showSkeleton ? (
+                <>Show UI</>
+              ) : (
+                <>Show Skeleton &#x2192;</>
+              )}
               </button>
-            ) : (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setLoading(false)}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold bg-stone-900 text-white hover:bg-stone-800 shadow-lg shadow-stone-300 transition-all"
-                >
-                  Show UI
-                </button>
-                <button
-                  onClick={() => setLoading(true)}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all"
-                >
-                  &#x2713; Skeleton &middot; {totalBones} bones
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
@@ -262,7 +245,7 @@ export default function DemoPage() {
               <aside className="w-[220px] shrink-0 bg-white border-r border-stone-200 p-3 flex flex-col gap-4">
                 <div>
                   <div className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2 px-1">Team</div>
-                  <SkeletonSection name="sidebar-nav" loading={loading} bones={bones} setRef={setRef}
+                  <SkeletonSection name="sidebar-nav" loading={effectiveLoading} bones={bones} setRef={setRef}
                     fixture={
                       <div className="space-y-1">
                         {["Dashboard", "Analytics", "Projects", "Team", "Settings"].map((item) => (
@@ -298,7 +281,7 @@ export default function DemoPage() {
 
                 <div>
                   <div className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2 px-1">Today</div>
-                  <SkeletonSection name="calendar" loading={loading} bones={bones} setRef={setRef}
+                  <SkeletonSection name="calendar" loading={effectiveLoading} bones={bones} setRef={setRef}
                     fixture={
                       <div className="space-y-1.5">
                         {calendarEvents.map((e) => (
@@ -323,7 +306,7 @@ export default function DemoPage() {
 
                 <div>
                   <div className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2 px-1">Chat</div>
-                  <SkeletonSection name="chat" loading={loading} bones={bones} setRef={setRef}
+                  <SkeletonSection name="chat" loading={effectiveLoading} bones={bones} setRef={setRef}
                     fixture={
                       <div className="space-y-1.5 bg-stone-50 rounded-lg p-2">
                         {chatMessages.map((m, i) => (
@@ -360,7 +343,7 @@ export default function DemoPage() {
               {/* ── Main content area ── */}
               <div className="flex-1 overflow-hidden p-4 space-y-3">
                 {/* Stats row */}
-                <SkeletonSection name="dashboard-stats" loading={loading} bones={bones} setRef={setRef}
+                <SkeletonSection name="dashboard-stats" loading={effectiveLoading} bones={bones} setRef={setRef}
                   fixture={
                     <div className="grid grid-cols-4 gap-2.5">
                       {[
@@ -405,7 +388,7 @@ export default function DemoPage() {
                   <div className="bg-white rounded-xl border border-stone-200 p-3">
                     <div className="text-[11px] font-semibold text-stone-700 mb-1">Traffic (7d)</div>
                     <div className="text-[9px] text-stone-400 mb-2">Requests per second</div>
-                    <SkeletonSection name="chart-traffic" loading={loading} bones={bones} setRef={setRef}
+                    <SkeletonSection name="chart-traffic" loading={effectiveLoading} bones={bones} setRef={setRef}
                       fixture={
                         <svg viewBox="0 0 160 40" className="w-full h-[40px]">
                           <rect x="0" y="10" width="160" height="30" fill="#e0e0e0" rx="4" />
@@ -430,7 +413,7 @@ export default function DemoPage() {
                   <div className="bg-white rounded-xl border border-stone-200 p-3">
                     <div className="text-[11px] font-semibold text-stone-700 mb-1">Deploys (12w)</div>
                     <div className="text-[9px] text-stone-400 mb-2">Per week</div>
-                    <SkeletonSection name="chart-deploys" loading={loading} bones={bones} setRef={setRef}
+                    <SkeletonSection name="chart-deploys" loading={effectiveLoading} bones={bones} setRef={setRef}
                       fixture={
                         <div className="flex items-end gap-[2px] h-[40px]">
                           {barData.map((h, i) => (
@@ -450,7 +433,7 @@ export default function DemoPage() {
                   <div className="bg-white rounded-xl border border-stone-200 p-3">
                     <div className="text-[11px] font-semibold text-stone-700 mb-1">Traffic Split</div>
                     <div className="text-[9px] text-stone-400 mb-2">By client type</div>
-                    <SkeletonSection name="chart-split" loading={loading} bones={bones} setRef={setRef}
+                    <SkeletonSection name="chart-split" loading={effectiveLoading} bones={bones} setRef={setRef}
                       fixture={
                         <div className="flex items-center gap-3">
                           <div className="w-[44px] h-[44px] rounded-full bg-stone-200 shrink-0" />
@@ -517,7 +500,7 @@ export default function DemoPage() {
                         </tr>
                       </thead>
                     </table>
-                    <SkeletonSection name="user-table" loading={loading} bones={bones} setRef={setRef}
+                    <SkeletonSection name="user-table" loading={effectiveLoading} bones={bones} setRef={setRef}
                       fixture={
                         <table className="w-full text-[10px]">
                           <tbody>
@@ -571,7 +554,7 @@ export default function DemoPage() {
                       <span className="text-[11px] font-semibold text-stone-700">Activity Feed</span>
                       <button className="text-[10px] text-indigo-600 font-medium">View all</button>
                     </div>
-                    <SkeletonSection name="activity" loading={loading} bones={bones} setRef={setRef}
+                    <SkeletonSection name="activity" loading={effectiveLoading} bones={bones} setRef={setRef}
                       fixture={
                         <div className="divide-y divide-stone-50">
                           {notifications.map((n, i) => (
@@ -614,7 +597,7 @@ export default function DemoPage() {
                       <Button variant="ghost" size="sm" className="text-[10px] h-6 px-2 text-indigo-600">+ New</Button>
                     </div>
                   </div>
-                  <SkeletonSection name="kanban" loading={loading} bones={bones} setRef={setRef}
+                  <SkeletonSection name="kanban" loading={effectiveLoading} bones={bones} setRef={setRef}
                     fixture={
                       <div className="grid grid-cols-4 gap-2">
                         {kanbanColumns.map((col) => (
@@ -676,7 +659,7 @@ export default function DemoPage() {
                       <span className="text-[11px] font-semibold text-stone-700">Recent Files</span>
                       <button className="text-[10px] text-indigo-600 font-medium">Browse all</button>
                     </div>
-                    <SkeletonSection name="files" loading={loading} bones={bones} setRef={setRef}
+                    <SkeletonSection name="files" loading={effectiveLoading} bones={bones} setRef={setRef}
                       fixture={
                         <div className="divide-y divide-stone-50">
                           {recentFiles.map((f) => (
@@ -717,7 +700,7 @@ export default function DemoPage() {
                   <div className="flex flex-col gap-2.5">
                     <div className="bg-white rounded-xl border border-stone-200 p-3">
                       <div className="text-[11px] font-semibold text-stone-700 mb-2.5">Sprint Progress</div>
-                      <SkeletonSection name="progress" loading={loading} bones={bones} setRef={setRef}
+                      <SkeletonSection name="progress" loading={effectiveLoading} bones={bones} setRef={setRef}
                         fixture={
                           <div className="space-y-2">
                             {[
@@ -762,7 +745,7 @@ export default function DemoPage() {
 
                     <div className="bg-white rounded-xl border border-stone-200 p-3">
                       <div className="text-[11px] font-semibold text-stone-700 mb-2">Server Status</div>
-                      <SkeletonSection name="servers" loading={loading} bones={bones} setRef={setRef}
+                      <SkeletonSection name="servers" loading={effectiveLoading} bones={bones} setRef={setRef}
                         fixture={
                           <div className="grid grid-cols-2 gap-1.5">
                             {[

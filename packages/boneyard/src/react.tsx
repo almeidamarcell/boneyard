@@ -132,7 +132,7 @@ export function Skeleton({
       const mq = window.matchMedia('(prefers-color-scheme: dark)')
       const hasDarkClass = document.documentElement.classList.contains('dark') ||
         !!containerRef.current?.closest('.dark')
-      setIsDark(mq.matches || hasDarkClass)
+      setIsDark(hasDarkClass)
     }
     checkDark()
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
@@ -180,9 +180,11 @@ export function Skeleton({
   }
 
   // Resolve bones: explicit initialBones > registry lookup
+  // Use viewport width (not container width) to pick breakpoint, since bones are keyed by viewport width
   const effectiveBones = initialBones ?? (name ? bonesRegistry.get(name) : undefined)
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : containerWidth
   const activeBones = effectiveBones && containerWidth > 0
-    ? resolveResponsive(effectiveBones, containerWidth)
+    ? resolveResponsive(effectiveBones, viewportWidth)
     : null
 
   const showSkeleton = loading && activeBones
