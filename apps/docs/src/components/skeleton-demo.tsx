@@ -425,7 +425,7 @@ function DemoCard({ demoKey, label, description, Component }: { demoKey: string;
         {/* Left: Real UI */}
         <div>
           <div className="text-[10px] font-mono text-stone-400 uppercase tracking-wider mb-1.5 px-1">Real UI</div>
-          <div className={`rounded-xl p-4 overflow-hidden transition-colors duration-200 ${dark ? "bg-[#1A1A1A] [&_*]:text-stone-300 [&_.text-stone-800]:text-stone-200 [&_.text-stone-700]:text-stone-300 [&_.text-stone-600]:text-stone-400 [&_.text-stone-500]:text-stone-400 [&_.text-stone-400]:text-stone-500 [&_.bg-stone-100]:bg-[#2B2B2B] [&_.bg-stone-50]:bg-[#2B2B2B] [&_.bg-stone-300]:bg-stone-600 [&_.bg-stone-900]:bg-stone-200 [&_.bg-stone-900_*]:text-stone-900 [&_.border-stone-100]:border-[#333]" : "bg-white border border-stone-200"}`}>
+          <div className={`rounded-xl p-4 overflow-hidden transition-colors duration-200 ${dark ? "bg-[#1A1A1A] [&_*]:text-stone-300 [&_.text-stone-800]:text-stone-200 [&_.text-stone-700]:text-stone-300 [&_.text-stone-600]:text-stone-400 [&_.text-stone-500]:text-stone-400 [&_.text-stone-400]:text-stone-500 [&_.bg-stone-100]:bg-[#2B2B2B] [&_.bg-stone-50]:bg-[#2B2B2B] [&_.bg-stone-300]:bg-stone-600 [&_.bg-stone-900]:bg-[#2B2B2B] [&_.bg-stone-900_*]:text-stone-300 [&_.border-stone-100]:border-[#333]" : "bg-white border border-stone-200"}`}>
             <div ref={uiRef}>
               <Component />
             </div>
