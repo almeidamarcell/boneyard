@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="boneyard-logo.gif" alt="Boneyard" width="600" />
+  <img src="boneyard-logo.gif" alt="Boneyard" width="1000" />
 </p>
 
 # boneyard
