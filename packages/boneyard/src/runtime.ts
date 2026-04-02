@@ -10,9 +10,6 @@
 
 import type { Bone, SkeletonResult } from './types.js'
 
-export type { Bone, SkeletonResult }
-export type { SkeletonDescriptor } from './types.js'
-
 /** Mix a hex color toward white by `amount` (0–1). */
 function lightenHex(hex: string, amount: number): string {
   const r = parseInt(hex.slice(1, 3), 16)
