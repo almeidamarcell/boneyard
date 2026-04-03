@@ -76,6 +76,10 @@ npx boneyard-js build --breakpoints 390,820,1440 --out ./public/bones
 - [Twitter thread](https://x.com/0xGoodfuture/status/2039818750568878245)
 - [GitHub](https://github.com/0xGF/boneyard)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=0xGF/boneyard&type=Date)](https://star-history.com/#0xGF/boneyard&Date)
+
 ## License
 
 MIT
