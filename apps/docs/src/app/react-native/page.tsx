@@ -54,22 +54,70 @@ export default function ReactNativePage() {
           You have two options for getting bone data into your React Native app:
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <p className="text-[13px] font-medium text-stone-700 mb-2">Option A: Generate from a web build</p>
+            <p className="text-[13px] font-medium text-stone-700 mb-2">Option A: Generate from Expo web (recommended)</p>
             <p className="text-[14px] text-[#78716c] leading-relaxed mb-3">
-              If you have a web version of your components (Next.js, Vite, etc.), run the CLI there and copy the <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">.bones.json</code> files
-              into your React Native project. The format is the same.
+              Expo apps support <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">--web</code> mode, which renders your React Native components in a browser
+              via react-native-web. The boneyard CLI can snapshot those rendered components and generate <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">.bones.json</code> files
+              that work on native devices.
             </p>
-            <CodeBlock language="bash" code={`<span class="text-stone-500"># In your web project</span>
-npx boneyard-js build
+            <p className="text-[14px] text-[#78716c] leading-relaxed mb-3">
+              First, create a capture page that wraps your components with the <strong className="text-stone-600">web</strong> Skeleton
+              (from <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">boneyard-js/react</code>). This page is only used for the CLI build — not in your native app:
+            </p>
+            <CodeBlock filename="CaptureScreen.tsx" language="tsx" code={`<span class="text-[#c084fc]">import</span> { View } <span class="text-[#c084fc]">from</span> <span class="text-[#86efac]">'react-native'</span>
+<span class="text-[#c084fc]">import</span> { Skeleton } <span class="text-[#c084fc]">from</span> <span class="text-[#86efac]">'boneyard-js/react'</span>
+<span class="text-[#c084fc]">import</span> { ProfileCard } <span class="text-[#c084fc]">from</span> <span class="text-[#86efac]">'./components/ProfileCard'</span>
 
-<span class="text-stone-500"># Copy bones to your RN project</span>
-cp src/bones/*.bones.json ../my-rn-app/bones/`} />
+<span class="text-[#c084fc]">export default function</span> <span class="text-[#fde68a]">CaptureScreen</span>() {
+  <span class="text-[#c084fc]">return</span> (
+    &lt;<span class="text-[#fde68a]">View</span>&gt;
+      &lt;<span class="text-[#fde68a]">Skeleton</span> <span class="text-[#93c5fd]">name</span>=<span class="text-[#86efac]">"profile-card"</span> <span class="text-[#93c5fd]">loading</span>={<span class="text-[#fbbf24]">false</span>}
+        <span class="text-[#93c5fd]">fixture</span>={&lt;<span class="text-[#fde68a]">ProfileCard</span> /&gt;}&gt;
+        &lt;<span class="text-[#fde68a]">ProfileCard</span> /&gt;
+      &lt;/<span class="text-[#fde68a]">Skeleton</span>&gt;
+    &lt;/<span class="text-[#fde68a]">View</span>&gt;
+  )
+}`} />
+            <p className="text-[14px] text-[#78716c] leading-relaxed mt-4 mb-3">
+              Then run Expo web and the boneyard CLI:
+            </p>
+            <CodeBlock language="bash" code={`<span class="text-stone-500"># Terminal 1 — start Expo web</span>
+npx expo start --web
+
+<span class="text-stone-500"># Terminal 2 — generate bones</span>
+npx boneyard-js build http://localhost:8081 --out ./bones`} />
+            <p className="text-[14px] text-[#78716c] leading-relaxed mt-4 mb-3">
+              The CLI generates <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">.bones.json</code> files and a <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">registry.js</code>.
+              The generated registry imports from <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">boneyard-js/react</code> — change it
+              to <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">boneyard-js/native</code> for your mobile app:
+            </p>
+            <CodeBlock filename="bones/registry.js — change this line" language="tsx" code={`<span class="text-stone-500">// Generated:</span>  <span class="text-[#c084fc]">import</span> { registerBones } <span class="text-[#c084fc]">from</span> <span class="text-stone-500 line-through">'boneyard-js/react'</span>
+<span class="text-stone-500">// Change to:</span>  <span class="text-[#c084fc]">import</span> { registerBones } <span class="text-[#c084fc]">from</span> <span class="text-[#86efac]">'boneyard-js/native'</span>`} />
+
+            <div className="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-4 space-y-2">
+              <p className="text-[13px] font-medium text-stone-700">Tip: auto-capture with build mode</p>
+              <p className="text-[13px] text-[#78716c]">
+                The CLI sets <code className="text-[12px] bg-white px-1 py-0.5 rounded border border-stone-200">window.__BONEYARD_BUILD = true</code> when
+                visiting your app. You can conditionally render your capture page only during the build — keeping
+                your normal app UI for development and the capture layout for bone generation.
+              </p>
+            </div>
           </div>
 
           <div>
-            <p className="text-[13px] font-medium text-stone-700 mb-2">Option B: Write bones by hand</p>
+            <p className="text-[13px] font-medium text-stone-700 mb-2">Option B: Copy from a web project</p>
+            <p className="text-[14px] text-[#78716c] leading-relaxed mb-3">
+              If you already have a web version of your app (Next.js, Vite, etc.) with boneyard set up,
+              just copy the <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">.bones.json</code> files.
+              The format is identical across platforms.
+            </p>
+            <CodeBlock language="bash" code={`cp src/bones/*.bones.json ../my-rn-app/bones/`} />
+          </div>
+
+          <div>
+            <p className="text-[13px] font-medium text-stone-700 mb-2">Option C: Write bones by hand</p>
             <p className="text-[14px] text-[#78716c] leading-relaxed mb-3">
               Create a <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">.bones.json</code> file manually. Each bone is a rectangle with position, size, and border radius:
             </p>
