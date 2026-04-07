@@ -1,6 +1,6 @@
 import type { SkeletonDescriptor, Bone, SkeletonResult, SnapshotConfig } from './types.js'
 
-const DEFAULT_LEAF_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'tr'])
+const DEFAULT_LEAF_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th'])
 
 /**
  * Snapshot the exact visual layout of a rendered DOM element as skeleton bones.
