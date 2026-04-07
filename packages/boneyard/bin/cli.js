@@ -785,7 +785,6 @@ if (watchMode && !nativeMode) {
         }
       }
       for (const watchUrl of toVisit) {
-        if (!visited.has(watchUrl)) continue
         await capturePage(watchUrl)
       }
 
