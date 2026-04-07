@@ -20,7 +20,7 @@
  *   npm install -D playwright && npx playwright install chromium
  */
 
-import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs'
+import { writeFileSync, mkdirSync, existsSync, readFileSync, readdirSync } from 'fs'
 import { resolve, join, dirname } from 'path'
 import http from 'http'
 import https from 'https'
@@ -50,6 +50,7 @@ let cliSetBreakpoints = false
 let cliSetWait = false
 let forceRebuild = false
 let nativeMode = false
+let noScan = false
 
 for (let i = 1; i < args.length; i++) {
   if (args[i] === '--out') {
@@ -65,6 +66,8 @@ for (let i = 1; i < args.length; i++) {
     forceRebuild = true
   } else if (args[i] === '--native') {
     nativeMode = true
+  } else if (args[i] === '--no-scan') {
+    noScan = true
   } else if (!args[i].startsWith('--')) {
     urls.push(args[i])
   }
@@ -548,6 +551,86 @@ async function discoverLinks(pageUrl) {
   return [...new Set(links)]
 }
 
+// Discover routes from filesystem (Next.js, SvelteKit, Vite/Remix)
+function discoverRoutes(origin) {
+  const cwd = process.cwd()
+  const routes = []
+
+  function walkDir(dir) {
+    if (!existsSync(dir)) return []
+    const entries = []
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name)
+      if (entry.isDirectory()) {
+        // Skip dynamic route segments like [id], (groups), __tests__
+        if (entry.name.startsWith('_') || entry.name.startsWith('.')) continue
+        entries.push(...walkDir(full))
+      } else {
+        entries.push(full)
+      }
+    }
+    return entries
+  }
+
+  // Next.js App Router: app/**/page.{tsx,jsx,ts,js}
+  const appDir = existsSync(join(cwd, 'src/app')) ? join(cwd, 'src/app') : join(cwd, 'app')
+  if (existsSync(appDir)) {
+    for (const file of walkDir(appDir)) {
+      const base = file.split('/').pop()
+      if (/^page\.(tsx|jsx|ts|js)$/.test(base)) {
+        let route = dirname(file).replace(appDir, '') || '/'
+        // Skip route groups like (marketing) — flatten them
+        route = route.replace(/\/\([^)]+\)/g, '')
+        if (!route) route = '/'
+        routes.push(route)
+      }
+    }
+  }
+
+  // Next.js Pages Router: pages/**/*.{tsx,jsx,ts,js}
+  const pagesDir = existsSync(join(cwd, 'src/pages')) ? join(cwd, 'src/pages') : join(cwd, 'pages')
+  if (existsSync(pagesDir) && !existsSync(appDir)) {
+    for (const file of walkDir(pagesDir)) {
+      const base = file.split('/').pop()
+      if (!/\.(tsx|jsx|ts|js)$/.test(base)) continue
+      // Skip Next.js special files and API routes
+      const name = base.replace(/\.(tsx|jsx|ts|js)$/, '')
+      if (['_app', '_document', '_error', '404', '500'].includes(name)) continue
+      let route = file.replace(pagesDir, '').replace(/\.(tsx|jsx|ts|js)$/, '')
+      if (route.includes('/api/')) continue
+      if (route.endsWith('/index')) route = route.replace(/\/index$/, '') || '/'
+      routes.push(route)
+    }
+  }
+
+  // SvelteKit: src/routes/**/+page.svelte
+  const svelteDir = join(cwd, 'src/routes')
+  if (existsSync(svelteDir)) {
+    for (const file of walkDir(svelteDir)) {
+      if (file.endsWith('+page.svelte')) {
+        let route = dirname(file).replace(svelteDir, '') || '/'
+        route = route.replace(/\/\([^)]+\)/g, '')
+        if (!route) route = '/'
+        routes.push(route)
+      }
+    }
+  }
+
+  // Convert to full URLs and deduplicate
+  const seen = new Set()
+  const urls = []
+  for (const route of routes) {
+    // Skip dynamic segments — can't visit without params
+    if (route.includes('[')) continue
+    const url = `${origin}${route}`
+    if (!seen.has(url)) {
+      seen.add(url)
+      urls.push(url)
+    }
+  }
+  return urls
+}
+
 // Crawl all pages
 const startUrl = urls[0]
 const startOrigin = new URL(startUrl).origin
@@ -563,6 +646,21 @@ for (const url of urls) {
         toVisit.push(link)
       }
     }
+  }
+}
+
+// Discover routes from filesystem
+if (!noScan) {
+  const fsRoutes = discoverRoutes(startOrigin)
+  let added = 0
+  for (const route of fsRoutes) {
+    if (!visited.has(route) && !toVisit.includes(route)) {
+      toVisit.push(route)
+      added++
+    }
+  }
+  if (added > 0) {
+    console.log(`  \x1b[2mFound ${added} additional route(s) from filesystem\x1b[0m\n`)
   }
 }
 
@@ -878,6 +976,7 @@ function printHelp() {
     --breakpoints <bp>   Comma-separated px widths    (default: 375,768,1280)
     --wait <ms>          Extra wait after page load   (default: 800)
     --force              Recapture all skeletons      (skip incremental cache)
+    --no-scan            Skip filesystem route scanning (only crawl links)
     --native             React Native mode — captures bones from a running
                          native app on device/simulator (no browser needed).
                          Registry imports from boneyard-js/native.
