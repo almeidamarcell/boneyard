@@ -119,7 +119,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="py-4 space-y-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-[12px] text-[#a8a29e]">v1.6.4</span>
+          <span className="text-[12px] text-[#a8a29e]">v1.6.5</span>
           <a
             href="https://github.com/0xGF/boneyard"
             target="_blank"

@@ -8,12 +8,71 @@ export default function ChangelogPage() {
         </p>
       </div>
 
+      {/* v1.6.5 */}
+      <section>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-[14px] font-bold">v1.6.5</span>
+          <span className="text-[12px] text-stone-400">April 2026</span>
+          <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">latest</span>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-[14px] font-semibold mb-1">Angular adapter</h3>
+            <p className="text-[13px] text-[#78716c] leading-relaxed">
+              New <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">boneyard-js/angular</code> export
+              with a standalone Angular 14+ component. OnPush change detection, dark mode auto-detection,
+              content projection with <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">[fixture]</code> and <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">[fallback]</code> selectors.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-[14px] font-semibold mb-1">Watch mode</h3>
+            <p className="text-[13px] text-[#78716c] leading-relaxed">
+              <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">--watch</code> flag keeps the browser open and
+              re-captures skeletons when your app changes. Listens for HMR events from Vite, Next.js, and Webpack.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-[14px] font-semibold mb-1">Filesystem route scanning</h3>
+            <p className="text-[13px] text-[#78716c] leading-relaxed">
+              The CLI now scans route folders (Next.js App/Pages Router, SvelteKit, Vite/Remix) to discover pages
+              not linked in navigation. Use <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">--no-scan</code> to opt out.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-[14px] font-semibold mb-1">Svelte 5 attachments</h3>
+            <p className="text-[13px] text-[#78716c] leading-relaxed">
+              Refactored Svelte adapter to use <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">{"@attach"}</code> directives
+              instead of onMount. Requires Svelte 5.29+. Added shimmer/solid animation modes and <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">configureBoneyard()</code>.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-[14px] font-semibold mb-1">Bun env file support</h3>
+            <p className="text-[13px] text-[#78716c] leading-relaxed">
+              <code className="text-[12px] bg-stone-100 px-1 py-0.5 rounded">--env-file</code> flag loads environment variables
+              from a file, useful for Bun runtime where env vars aren&apos;t inherited by subprocesses.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-[14px] font-semibold mb-1">Framework auto-detection</h3>
+            <p className="text-[13px] text-[#78716c] leading-relaxed">
+              The CLI reads your package.json to detect Vue, Svelte, Angular, or React and generates
+              the correct registry imports automatically.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* v1.6.4 */}
       <section>
         <div className="flex items-center gap-3 mb-4">
           <span className="text-[14px] font-bold">v1.6.4</span>
           <span className="text-[12px] text-stone-400">April 2026</span>
-          <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">latest</span>
         </div>
 
         <div className="space-y-6">
