@@ -661,6 +661,34 @@ function discoverRoutes(origin) {
     }
   }
 
+  // Nuxt: pages/**/*.vue
+  const nuxtDir = existsSync(join(cwd, 'pages')) ? join(cwd, 'pages') : null
+  if (nuxtDir && !existsSync(appDir) && !existsSync(pagesDir)) {
+    for (const file of walkDir(nuxtDir)) {
+      if (!file.endsWith('.vue')) continue
+      let route = file.replace(nuxtDir, '').replace(/\.vue$/, '')
+      if (route.endsWith('/index')) route = route.replace(/\/index$/, '') || '/'
+      routes.push(route)
+    }
+  }
+
+  // Remix / React Router v7: app/routes/**/*.{tsx,jsx,ts,js}
+  const remixDir = join(cwd, 'app/routes')
+  if (existsSync(remixDir)) {
+    for (const file of walkDir(remixDir)) {
+      const base = file.split('/').pop()
+      if (!/\.(tsx|jsx|ts|js)$/.test(base)) continue
+      let route = file.replace(remixDir, '').replace(/\.(tsx|jsx|ts|js)$/, '')
+      // Remix flat routes: dots become slashes, _ prefix = pathless layout
+      route = route.replace(/\./g, '/')
+      if (route.endsWith('/index') || route.endsWith('/_index')) route = route.replace(/\/_?index$/, '') || '/'
+      // Skip layout routes (prefixed with _)
+      const segments = route.split('/')
+      if (segments.some(s => s.startsWith('_') && s !== '_index')) continue
+      routes.push(route)
+    }
+  }
+
   // Convert to full URLs and deduplicate
   const seen = new Set()
   const urls = []
