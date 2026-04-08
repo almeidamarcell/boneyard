@@ -1,4 +1,5 @@
 import type { ResponsiveBones, SkeletonResult, SnapshotConfig } from './types.js'
+import * as i0 from '@angular/core'
 
 export type AnimationStyle = 'pulse' | 'shimmer' | 'solid' | boolean
 
@@ -16,4 +17,28 @@ export declare class SkeletonComponent {
   transition?: number | boolean
   cssClass?: string
   snapshotConfig?: SnapshotConfig
+
+  static ɵfac: i0.ɵɵFactoryDeclaration<SkeletonComponent, never>
+  static ɵcmp: i0.ɵɵComponentDeclaration<
+    SkeletonComponent,
+    'boneyard-skeleton',
+    never,
+    {
+      'loading': { alias: 'loading'; required: false }
+      'name': { alias: 'name'; required: false }
+      'initialBones': { alias: 'initialBones'; required: false }
+      'color': { alias: 'color'; required: false }
+      'darkColor': { alias: 'darkColor'; required: false }
+      'animate': { alias: 'animate'; required: false }
+      'stagger': { alias: 'stagger'; required: false }
+      'transition': { alias: 'transition'; required: false }
+      'cssClass': { alias: 'cssClass'; required: false }
+      'snapshotConfig': { alias: 'snapshotConfig'; required: false }
+    },
+    {},
+    never,
+    ['*', '[fallback]', '[fixture]'],
+    true,
+    never
+  >
 }
