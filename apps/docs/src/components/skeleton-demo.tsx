@@ -449,11 +449,13 @@ function DemoCard({ demoKey, label, description, Component }: { demoKey: string;
             {showContent ? 'Content' : 'Skeleton'}
           </div>
           <div className={`rounded-xl border p-4 overflow-hidden transition-colors duration-200 relative ${dark ? "bg-[#1c1917] border-stone-700" : "bg-white border-stone-200"}`}>
-            {/* Content layer — always rendered, visible when showContent */}
-            <div className={dark ? "[&_*]:text-stone-300 [&_.text-stone-800]:text-stone-200 [&_.text-stone-700]:text-stone-300 [&_.text-stone-600]:text-stone-400 [&_.text-stone-500]:text-stone-400 [&_.bg-stone-100]:bg-[#2B2B2B] [&_.bg-stone-50]:bg-[#2B2B2B]" : ""}>
+            {/* Content layer — visibility hidden keeps layout, skeleton covers it */}
+            <div
+              className={dark ? "[&_*]:text-stone-300 [&_.text-stone-800]:text-stone-200 [&_.text-stone-700]:text-stone-300 [&_.text-stone-600]:text-stone-400 [&_.text-stone-500]:text-stone-400 [&_.bg-stone-100]:bg-[#2B2B2B] [&_.bg-stone-50]:bg-[#2B2B2B]" : ""}
+            >
               <Component />
             </div>
-            {/* Skeleton overlay — fades out when showContent */}
+            {/* Skeleton overlay */}
             {skeleton && (
               <div
                 style={{
@@ -462,6 +464,7 @@ function DemoCard({ demoKey, label, description, Component }: { demoKey: string;
                   opacity: showContent ? 0 : 1,
                   transition: transitionVal > 0 ? `opacity ${transitionVal}ms ease-out` : undefined,
                   pointerEvents: showContent ? 'none' : undefined,
+                  background: dark ? '#1c1917' : 'white',
                 }}
               >
                 <SkeletonRenderer
