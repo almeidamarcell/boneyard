@@ -135,6 +135,18 @@ export default function FeaturesPage() {
                 <td className="px-4 py-2">—</td>
                 <td className="px-4 py-2">Mock content for CLI capture (dev only)</td>
               </tr>
+              <tr className="border-b border-stone-100">
+                <td className="px-4 py-2 font-mono text-stone-800">stagger</td>
+                <td className="px-4 py-2">number | boolean</td>
+                <td className="px-4 py-2">false</td>
+                <td className="px-4 py-2">Stagger delay between bones in ms (true = 80ms)</td>
+              </tr>
+              <tr className="border-b border-stone-100">
+                <td className="px-4 py-2 font-mono text-stone-800">transition</td>
+                <td className="px-4 py-2">number | boolean</td>
+                <td className="px-4 py-2">false</td>
+                <td className="px-4 py-2">Fade out duration in ms when loading ends (true = 300ms)</td>
+              </tr>
               <tr>
                 <td className="px-4 py-2 font-mono text-stone-800">snapshotConfig</td>
                 <td className="px-4 py-2">SnapshotConfig</td>

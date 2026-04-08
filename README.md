@@ -105,9 +105,11 @@ npx boneyard-js build --force                       # skip incremental cache
 | `color` | string | `rgba(0,0,0,0.08)` | Bone fill color |
 | `darkColor` | string | `rgba(255,255,255,0.06)` | Bone color in dark mode |
 | `animate` | `'pulse'` \| `'shimmer'` \| `'solid'` | `'pulse'` | Animation style |
-| `fixture` | ReactNode / Snippet | — | Mock content for CLI capture (dev only) |
+| `stagger` | `number` \| `boolean` | `false` | Stagger delay between bones in ms (`true` = 80ms) |
+| `transition` | `number` \| `boolean` | `false` | Fade out duration when loading ends (`true` = 300ms) |
+| `fixture` | ReactNode / Snippet / Slot | — | Mock content for CLI capture (dev only) |
 | `initialBones` | ResponsiveBones | — | Pass bones directly (overrides registry) |
-| `fallback` | ReactNode / Snippet | — | Shown when loading but no bones available |
+| `fallback` | ReactNode / Snippet / Slot | — | Shown when loading but no bones available |
 
 ## Config file
 
