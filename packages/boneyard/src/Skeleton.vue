@@ -97,11 +97,16 @@ const staggerMs = computed(() => props.stagger === true ? 80 : props.stagger ===
 // Transition
 const transitionMs = computed(() => props.transition === true ? 300 : props.transition === false || !props.transition ? 0 : props.transition)
 const transitioning = ref(false)
+let transitionTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(() => props.loading, (newVal, oldVal) => {
   if (oldVal && !newVal && transitionMs.value > 0 && activeBones.value) {
+    if (transitionTimer) clearTimeout(transitionTimer)
     transitioning.value = true
-    setTimeout(() => { transitioning.value = false }, transitionMs.value)
+    transitionTimer = setTimeout(() => {
+      transitioning.value = false
+      transitionTimer = null
+    }, transitionMs.value)
   }
 })
 

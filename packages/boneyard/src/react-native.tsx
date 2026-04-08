@@ -484,19 +484,23 @@ export function Skeleton({
 
   const [transitioning, setTransitioning] = useState(false)
   const fadeAnim = useRef(new Animated.Value(1)).current
+  const fadeAnimRef = useRef<Animated.CompositeAnimation | null>(null)
   const prevLoadingRef = useRef(loading)
 
   useEffect(() => {
     if (prevLoadingRef.current && !loading && transitionMs > 0 && activeBones) {
+      fadeAnimRef.current?.stop()
       setTransitioning(true)
-      Animated.timing(fadeAnim, {
+      fadeAnimRef.current = Animated.timing(fadeAnim, {
         toValue: 0,
         duration: transitionMs,
         easing: Easing.out(Easing.ease),
         useNativeDriver: false,
-      }).start(() => {
+      })
+      fadeAnimRef.current.start(() => {
         setTransitioning(false)
         fadeAnim.setValue(1)
+        fadeAnimRef.current = null
       })
     }
     prevLoadingRef.current = loading

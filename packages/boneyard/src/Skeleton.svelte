@@ -86,10 +86,16 @@
   let transitioning = $state(false)
   let prevLoading = $state(loading)
 
+  let transitionTimer: ReturnType<typeof setTimeout> | null = null
+
   $effect(() => {
     if (prevLoading && !loading && transitionMs > 0 && activeBones) {
+      if (transitionTimer) clearTimeout(transitionTimer)
       transitioning = true
-      setTimeout(() => { transitioning = false }, transitionMs)
+      transitionTimer = setTimeout(() => {
+        transitioning = false
+        transitionTimer = null
+      }, transitionMs)
     }
     prevLoading = loading
   })

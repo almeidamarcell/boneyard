@@ -109,6 +109,7 @@ export function Skeleton({
   snapshotConfig,
 }: SkeletonProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const uid = useRef(Math.random().toString(36).slice(2, 8)).current
   const [containerWidth, setContainerWidth] = useState(0)
   const [containerHeight, setContainerHeight] = useState(0)
   const [isDark, setIsDark] = useState(false)
@@ -199,20 +200,23 @@ export function Skeleton({
   // Transition: fade out skeleton when loading ends
   const transitionMs = transition === true ? 300 : transition === false ? 0 : transition
   const [transitioning, setTransitioning] = useState(false)
-  const [prevLoading, setPrevLoading] = useState(loading)
-
-  if (prevLoading && !loading && transitionMs > 0 && activeBones) {
-    setPrevLoading(loading)
-    setTransitioning(true)
-  } else if (prevLoading !== loading) {
-    setPrevLoading(loading)
-  }
+  const prevLoadingRef = useRef(loading)
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (!transitioning) return
-    const timer = setTimeout(() => setTransitioning(false), transitionMs)
-    return () => clearTimeout(timer)
-  }, [transitioning, transitionMs])
+    if (prevLoadingRef.current && !loading && transitionMs > 0 && activeBones) {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current)
+      setTransitioning(true)
+      transitionTimerRef.current = setTimeout(() => {
+        setTransitioning(false)
+        transitionTimerRef.current = null
+      }, transitionMs)
+    }
+    prevLoadingRef.current = loading
+    return () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current)
+    }
+  }, [loading, transitionMs, activeBones])
 
   const showSkeleton = (loading || transitioning) && activeBones
   const showFallback = loading && !activeBones && !transitioning
@@ -249,26 +253,26 @@ export function Skeleton({
                 backgroundColor: boneColor,
               }
               if (animationStyle === 'pulse') {
-                boneStyle.animation = 'boneyard-pulse 1.8s ease-in-out infinite'
+                boneStyle.animation = `bp-${uid} 1.8s ease-in-out infinite`
               } else if (animationStyle === 'shimmer') {
                 boneStyle.background = `linear-gradient(90deg, ${boneColor} 30%, ${lighterColor} 50%, ${boneColor} 70%)`
                 boneStyle.backgroundSize = '200% 100%'
-                boneStyle.animation = 'boneyard-shimmer 2.4s linear infinite'
+                boneStyle.animation = `bs-${uid} 2.4s linear infinite`
               }
               if (staggerMs > 0) {
                 boneStyle.opacity = 0
-                boneStyle.animation = `${boneStyle.animation ? boneStyle.animation + ',' : ''} boneyard-stagger 0.3s ease-out ${i * staggerMs}ms forwards`
+                boneStyle.animation = `${boneStyle.animation ? boneStyle.animation + ',' : ''} by-${uid} 0.3s ease-out ${i * staggerMs}ms forwards`
               }
               return <div key={i} data-boneyard-bone="true" style={boneStyle} />
             })}
             {animationStyle === 'pulse' && (
-              <style>{`@keyframes boneyard-pulse{0%,100%{background-color:${resolvedColor}}50%{background-color:${adjustColor(resolvedColor, isDark ? 0.04 : 0.3)}}}`}</style>
+              <style>{`@keyframes bp-${uid}{0%,100%{background-color:${resolvedColor}}50%{background-color:${adjustColor(resolvedColor, isDark ? 0.04 : 0.3)}}}`}</style>
             )}
             {animationStyle === 'shimmer' && (
-              <style>{`@keyframes boneyard-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
+              <style>{`@keyframes bs-${uid}{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
             )}
             {staggerMs > 0 && (
-              <style>{`@keyframes boneyard-stagger{from{opacity:0}to{opacity:1}}`}</style>
+              <style>{`@keyframes by-${uid}{from{opacity:0}to{opacity:1}}`}</style>
             )}
           </div>
         </div>

@@ -221,20 +221,21 @@ export class SkeletonComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['loading'] || changes['name'] || changes['initialBones']) {
+      this.updateBones()
+    }
     if (changes['loading']) {
       const prev = changes['loading'].previousValue
       const curr = changes['loading'].currentValue
       if (prev && !curr && this.transitionMs > 0 && this.activeBones) {
-        this.transitioning = true
         if (this.transitionTimer) clearTimeout(this.transitionTimer)
+        this.transitioning = true
         this.transitionTimer = setTimeout(() => {
           this.transitioning = false
+          this.transitionTimer = null
           this.cdr.markForCheck()
         }, this.transitionMs)
       }
-    }
-    if (changes['loading'] || changes['name'] || changes['initialBones']) {
-      this.updateBones()
     }
   }
 
