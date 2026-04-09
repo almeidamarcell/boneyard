@@ -438,6 +438,14 @@ async function gotoPage(page, pageUrl) {
     // networkidle can timeout on heavy pages — still try to capture
   }
 
+  // Detect redirects (e.g. auth middleware sending to /login)
+  const finalUrl = page.url()
+  const requestedPath = new URL(pageUrl).pathname
+  const finalPath = new URL(finalUrl).pathname
+  if (finalPath !== requestedPath) {
+    console.log(`    \x1b[33m⚠  Redirected: ${requestedPath} → ${finalPath}\x1b[0m`)
+  }
+
   if (waitMs > 0) await page.waitForTimeout(waitMs)
 }
 
@@ -467,7 +475,7 @@ async function capturePage(pageUrl) {
     // Find [data-boneyard] elements and extract bones using the real snapshotBones function
     const bones = await page.evaluate((collectHashes) => {
       const fn = window.__BONEYARD_SNAPSHOT
-      if (!fn) return { results: {}, hashes: {} }
+      if (!fn) return { results: {}, hashes: {}, snapshotMissing: true }
 
       const elements = document.querySelectorAll('[data-boneyard]')
       const results = {}
@@ -511,6 +519,12 @@ async function capturePage(pageUrl) {
 
       return { results, hashes }
     }, isFirstBreakpoint(width))
+
+    // Log when __BONEYARD_SNAPSHOT is not found — usually means the <Skeleton> component
+    // didn't mount (auth redirect, hydration failure, or addInitScript timing issue)
+    if (bones.snapshotMissing && isFirstBreakpoint(width)) {
+      console.log(`    \x1b[33m⚠  boneyard: __BONEYARD_SNAPSHOT not found — <Skeleton> may not have mounted on this page\x1b[0m`)
+    }
 
     // On first breakpoint, compute hashes and check for unchanged skeletons
     if (isFirstBreakpoint(width) && bones.hashes) {
